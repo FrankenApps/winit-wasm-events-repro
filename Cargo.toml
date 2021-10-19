@@ -1,0 +1,28 @@
+[package]
+name = "wasm_input"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+name = "wasm_input_lib"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "native_input"
+path = "src/main.rs"
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+winit = { version = "0.25", features = ["web-sys"] }
+wasm-bindgen = "0.2.76"
+web-sys = { version = "0.3.53", features = [
+    "DomRect",
+    "Element",
+    "Document",
+    "Navigator",
+    "Node",
+    "NodeList",
+    "HtmlCanvasElement",
+    "Window",
+]}

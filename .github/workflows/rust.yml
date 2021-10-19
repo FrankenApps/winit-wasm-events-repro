@@ -1,0 +1,36 @@
+name: Rust
+
+on:
+  workflow_dispatch
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install wasm-pack
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    - name: Build
+      run: wasm-pack build --target web
+    - name: Create publish folder
+      run: mkdir www
+    - name: Create build output folder
+      run: mkdir www/pkg
+    - name: Copy wasm files
+      run: cp pkg/README.md www/README.md &&
+           cp pkg/wasm_input_lib_bg.wasm www/pkg/wasm_input_lib_bg.wasm &&
+           cp pkg/wasm_input_lib_bg.wasm.d.ts www/pkg/wasm_input_lib_bg.wasm.d.ts &&
+           cp pkg/wasm_input_lib.d.ts www/pkg/wasm_input_lib.d.ts &&
+           cp pkg/wasm_input_lib.js www/pkg/wasm_input_lib.js
+    - name: Copy HTML template
+      run: cp index.html www/index.html
+    - name: Deploy to gh-pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+         github_token: ${{ secrets.GITHUB_TOKEN }}
+         publish_dir: ./www

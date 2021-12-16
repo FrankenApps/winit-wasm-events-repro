@@ -23,8 +23,6 @@ pub fn open_window() {
 
     let event_loop = EventLoop::new();
 
-    //#[cfg(not(target_arch = "wasm32"))]
-    //{
     #[cfg(not(target_arch = "wasm32"))]
     let window = WindowBuilder::new()
         .with_title("Mouse Wheel events")
@@ -33,7 +31,6 @@ pub fn open_window() {
 
     #[cfg(not(target_arch = "wasm32"))]
     println!("started with window size: {:?}", window.inner_size());
-    //}
 
     // Get the browser window.
     #[cfg(target_arch = "wasm32")]

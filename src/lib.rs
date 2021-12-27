@@ -1,5 +1,9 @@
 use wasm_bindgen::prelude::*;
-use winit::{event::{DeviceEvent, Event, KeyboardInput, VirtualKeyCode, WindowEvent}, event_loop::{ControlFlow, EventLoop}, window::WindowBuilder};
+use winit::{
+    event::{DeviceEvent, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+};
 
 #[cfg(target_arch = "wasm32")]
 use winit::platform::web::WindowBuilderExtWebSys;
@@ -14,6 +18,12 @@ const LOG_MOUSE_MOTION: bool = true;
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+}
+
+fn any_log(msg: &str) {
+    println!("{}", msg);
+    #[cfg(target_arch = "wasm32")]
+    log(msg);
 }
 
 #[wasm_bindgen(start)]
@@ -68,54 +78,56 @@ pub fn open_window() {
         match event {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                _ => (),
-            },
-            Event::DeviceEvent { event, .. } => match event {
-                DeviceEvent::MouseWheel { delta } => match delta {
+                WindowEvent::MouseWheel { delta, .. } => match delta {
                     winit::event::MouseScrollDelta::LineDelta(x, y) => {
-                        println!("mouse wheel Line Delta: ({},{})", x, y);
-                        #[cfg(target_arch = "wasm32")]
-                        log(format!("mouse wheel Line Delta: ({},{})", x, y).as_str());
+                        any_log(format!("mouse wheel Line Delta: ({},{})", x, y).as_str());
                     }
                     winit::event::MouseScrollDelta::PixelDelta(p) => {
-                        println!("mouse wheel Pixel Delta: ({},{})", p.x, p.y);
-                        #[cfg(target_arch = "wasm32")]
-                        log(format!("mouse wheel Pixel Delta: ({},{})", p.x, p.y).as_str());
+                        any_log(format!("mouse wheel Pixel Delta: ({},{})", p.x, p.y).as_str());
                     }
                 },
-                DeviceEvent::Button {
-                    button: 1, // The Left Mouse Button.
-                    state,
-                } => {
-                    println!("mouse Button: {:?}", state);
-                    #[cfg(target_arch = "wasm32")]
-                    log(format!("mouse Button: {:?}", state).as_str());
-                }
-                DeviceEvent::Key(KeyboardInput {
-                    state,
-                    virtual_keycode: Some(keycode),
+                WindowEvent::MouseInput { button, .. } => match button {
+                    winit::event::MouseButton::Left => {
+                        any_log("left click");
+                    }
+                    winit::event::MouseButton::Right => {
+                        any_log("right click");
+                    }
+                    winit::event::MouseButton::Middle => {
+                        any_log("middle click");
+                    }
+                    winit::event::MouseButton::Other(val) => {
+                        any_log(&format!("other click {}", val));
+                    }
+                },
+                WindowEvent::KeyboardInput {
+                    input:
+                        KeyboardInput {
+                            state,
+                            virtual_keycode: Some(keycode),
+                            ..
+                        },
                     ..
-                }) => match keycode {
+                } => match keycode {
                     VirtualKeyCode::Space => {
-                        println!("Space: {:?}", state);
-                        #[cfg(target_arch = "wasm32")]
-                        log(format!("Space: {:?}", state).as_str());
+                        any_log(format!("Space: {:?}", state).as_str());
                     }
                     _ => (),
                 },
-                // This is the only event that is fired on WASM.
+
+                _ => {}
+            },
+            Event::DeviceEvent { event, .. } => match event {
                 DeviceEvent::MouseMotion { delta } => {
                     if LOG_MOUSE_MOTION {
-                        println!("mouse motion Pixel Delta: ({},{})", delta.0, delta.1);
-                        #[cfg(target_arch = "wasm32")]
-                        log(
+                        any_log(
                             format!("mouse motion Pixel Delta: ({},{})", delta.0, delta.1).as_str(),
                         );
                     }
                 }
                 _ => (),
             },
-            _ => (),
+            _ => {}
         }
     });
 }

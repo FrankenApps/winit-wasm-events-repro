@@ -2,6 +2,8 @@
 
 Mouse and Key input seems to be broken on the web except for Mouse Movement.
 
+**The original issue was fixed in master using a workaround with `WindowEvent`s in the meantime. The original code using `DeviceEvent`s can be found [here](https://github.com/FrankenApps/winit-wasm-events-repro/tree/device-events).**
+
 ## Run natively
 You should be able to run the project on **Linux**, **MacOS** and **Windows** using `cargo run --release`.
 
